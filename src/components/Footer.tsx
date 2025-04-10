@@ -1,4 +1,3 @@
-
 import { Heart, Mail, MessageCircle, Github, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -10,7 +9,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center mb-4">
               <span className="font-bold text-xl">
-                Price<span className="text-brand-teal">Whisper</span>
+                Shop<span className="text-brand-teal">Wise AI</span>
               </span>
             </div>
             <p className="text-gray-600 text-sm mb-4">
@@ -104,11 +103,11 @@ const Footer = () => {
         
         <div className="border-t border-gray-200 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} PriceWhisper. All rights reserved.
+            © {new Date().getFullYear()} ShopWise AI. All rights reserved.
           </p>
           <div className="flex items-center mt-4 md:mt-0">
             <p className="text-gray-500 text-sm flex items-center">
-              Made with <Heart className="h-4 w-4 text-red-500 mx-1" /> by the PriceWhisper Team
+              Made with <Heart className="h-4 w-4 text-red-500 mx-1" /> by the ShopWise AI Team
             </p>
           </div>
         </div>

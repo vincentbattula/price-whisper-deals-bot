@@ -13,7 +13,7 @@ const Navbar = () => {
           <a href="/" className="flex items-center space-x-2">
             <ShoppingBag className="h-6 w-6 text-brand-teal" />
             <span className="font-bold text-xl text-brand-dark">
-              Price<span className="text-brand-teal">Whisper</span>
+              Shop<span className="text-brand-teal">Wise AI</span>
             </span>
           </a>
         </div>
