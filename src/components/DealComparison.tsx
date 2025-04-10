@@ -112,7 +112,7 @@ const DealComparison = () => {
             Compare & Save on Top Products
           </h2>
           <p className="mt-4 text-gray-600">
-            PriceWhisper finds the absolute best prices by comparing all payment options,
+            Shop Wise AI finds the absolute best prices by comparing all payment options,
             applying vouchers, and checking EMI deals.
           </p>
         </div>
@@ -121,7 +121,7 @@ const DealComparison = () => {
           <CardHeader className="pb-2">
             <div className="flex justify-between items-center">
               <CardTitle className="text-xl text-brand-dark">Best Deals</CardTitle>
-              <Tabs defaultValue="today" value={activeTab} onValueChange={setActiveTab}>
+              <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="today">
                 <TabsList>
                   <TabsTrigger value="today">Today's Deals</TabsTrigger>
                   <TabsTrigger value="trending">Trending</TabsTrigger>
@@ -130,16 +130,18 @@ const DealComparison = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <TabsContent value="today" className="space-y-6 mt-6">
-              {SAMPLE_PRODUCTS.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </TabsContent>
-            <TabsContent value="trending" className="space-y-6 mt-6">
-              {TRENDING_PRODUCTS.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </TabsContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="today">
+              <TabsContent value="today" className="space-y-6 mt-6">
+                {SAMPLE_PRODUCTS.map(product => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </TabsContent>
+              <TabsContent value="trending" className="space-y-6 mt-6">
+                {TRENDING_PRODUCTS.map(product => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
