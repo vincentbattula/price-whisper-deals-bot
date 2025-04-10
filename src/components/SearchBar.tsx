@@ -1,11 +1,12 @@
+
 import { useState } from "react";
 import { Search, Camera, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 
 const SearchBar = () => {
-  const isMobile = useIsMobile();
+  const isMobile = useMobile();
   const [searchQuery, setSearchQuery] = useState("");
   
   const handleSearch = (e: React.FormEvent) => {
