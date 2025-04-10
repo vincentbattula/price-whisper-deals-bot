@@ -20,7 +20,7 @@ const Index = () => {
                 Smart Features to Save You Money
               </h2>
               <p className="mt-4 text-gray-600">
-                PriceWhisper uses advanced algorithms to find you the absolute best deals.
+                ShopWise AI uses advanced algorithms to find you the absolute best deals.
               </p>
             </div>
             
@@ -72,7 +72,7 @@ const Index = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-brand-dark">
-                How PriceWhisper Works
+                How ShopWise AI Works
               </h2>
               <p className="mt-4 text-gray-600">
                 Finding the absolute best deal has never been easier.

@@ -54,6 +54,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const totalSavings = product.originalPrice - finalPrice;
   const totalSavingsPercent = Math.round((totalSavings / product.originalPrice) * 100);
 
+  // Format currency in Indian Rupees
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow duration-300">
       <div className="p-4">
@@ -94,10 +103,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <div className="mt-2">
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-bold text-brand-dark">
-                  ${finalPrice.toFixed(2)}
+                  {formatCurrency(finalPrice)}
                 </span>
                 <span className="text-sm line-through text-gray-400">
-                  ${product.originalPrice.toFixed(2)}
+                  {formatCurrency(product.originalPrice)}
                 </span>
                 {totalSavingsPercent > 0 && (
                   <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
@@ -132,7 +141,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         <TooltipContent>
                           <p className="text-xs">
                             {option.type === "card" && `Save with ${option.bank} card`}
-                            {option.type === "emi" && "Monthly installment option"}
+                            {option.type === "emi" && "Monthly instalment option"}
                             {option.type === "voucher" && "Apply discount voucher"}
                             {option.discount ? ` - ${option.discount}% off` : ""}
                           </p>

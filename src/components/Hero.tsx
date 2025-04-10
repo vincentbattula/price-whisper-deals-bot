@@ -13,7 +13,7 @@ const Hero = () => {
             Find the <span className="text-brand-teal">Absolute Best Deals</span> Across the Web
           </h1>
           <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            PriceWhisper compares prices, payment options, and applies the best vouchers
+            ShopWise AI compares prices, payment options, and applies the best vouchers
             automatically to get you the lowest possible price on any product.
           </p>
           
@@ -39,7 +39,7 @@ const Hero = () => {
           <SearchBar />
           
           <p className="text-sm text-gray-500 mt-4">
-            Popular: iPhone 15 Pro, PlayStation 5, Nike Air Max, Samsung TV
+            Popular: iPhone 15 Pro, PlayStation 5, OnePlus 12, Samsung Smart TV
           </p>
         </div>
 
