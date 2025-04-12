@@ -1,21 +1,24 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MenuIcon, X, ShoppingBag, MessageSquare } from "lucide-react";
+import { MenuIcon, X, ShoppingBag, MessageSquare, LogOut, User } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm">
       <div className="container mx-auto px-4 flex justify-between items-center h-16">
         <div className="flex items-center">
-          <a href="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <ShoppingBag className="h-6 w-6 text-brand-teal" />
             <span className="font-bold text-xl text-brand-dark">
               Shop<span className="text-brand-teal">Wise AI</span>
             </span>
-          </a>
+          </Link>
         </div>
 
         {/* Desktop Navigation */}
@@ -33,9 +36,29 @@ const Navbar = () => {
             <MessageSquare className="h-4 w-4" />
             Chat
           </Button>
-          <Button className="bg-brand-teal hover:bg-brand-teal/90 text-white">
-            Sign Up Free
-          </Button>
+          
+          {user ? (
+            <>
+              <Button variant="ghost" className="flex items-center gap-1">
+                <User className="h-4 w-4" />
+                Profile
+              </Button>
+              <Button 
+                onClick={() => signOut()} 
+                variant="outline"
+                className="flex items-center gap-1"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <Link to="/auth">
+              <Button className="bg-brand-teal hover:bg-brand-teal/90 text-white">
+                Sign In
+              </Button>
+            </Link>
+          )}
         </nav>
 
         {/* Mobile Menu Button */}
@@ -80,12 +103,38 @@ const Navbar = () => {
               <MessageSquare className="h-4 w-4 mr-2" />
               Chat
             </Button>
-            <Button
-              className="bg-brand-teal hover:bg-brand-teal/90 text-white w-full"
-              onClick={() => setIsOpen(false)}
-            >
-              Sign Up Free
-            </Button>
+            
+            {user ? (
+              <>
+                <Button 
+                  variant="ghost" 
+                  className="justify-start"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
+                </Button>
+                <Button 
+                  onClick={() => {
+                    signOut();
+                    setIsOpen(false);
+                  }} 
+                  variant="outline"
+                  className="justify-start"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <Link to="/auth" onClick={() => setIsOpen(false)}>
+                <Button
+                  className="bg-brand-teal hover:bg-brand-teal/90 text-white w-full"
+                >
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
         </nav>
       )}
