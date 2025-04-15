@@ -1,1 +1,5 @@
+
 project_id = "vohmneverymagclcqclw"
+
+[functions.product-comparison]
+verify_jwt = false
