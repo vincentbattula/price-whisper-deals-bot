@@ -1,7 +1,6 @@
 
 // Follow Deno runtime for Supabase Edge Functions
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.36/deno-dom-wasm.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -50,8 +49,8 @@ serve(async (req) => {
       );
     }
     
-    // Extract product details from the original URL
-    const productDetails = await extractProductDetails(url, platform);
+    // Extract basic product details from the URL (no longer using DOM parsing)
+    const productDetails = extractBasicProductDetails(url, platform);
     console.log("Extracted product details:", productDetails);
     
     if (!productDetails) {
@@ -93,71 +92,34 @@ function determinePlatform(url: string): string | null {
   return null;
 }
 
-// Extract product details from the given URL
-async function extractProductDetails(url: string, platform: string): Promise<any> {
+// Extract basic product details from the URL without DOM parsing
+function extractBasicProductDetails(url: string, platform: string): any {
   try {
-    // This would normally use a headless browser or specialized scraping library
-    // For demonstration, we'll use a simple fetch and DOM parsing
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-      }
-    });
+    let title = "Product from " + platform;
+    let price = null;
+    let image = null;
+    let productId = "";
     
-    if (!response.ok) {
-      throw new Error(`Failed to fetch product page: ${response.status}`);
-    }
-    
-    const html = await response.text();
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    
-    // Extract product details based on the platform
-    // Note: These selectors would need to be updated regularly as websites change
+    // Extract product ID based on platform
     if (platform === "amazon") {
-      const title = doc?.querySelector("#productTitle")?.textContent?.trim();
-      const image = doc?.querySelector("#landingImage")?.getAttribute("src");
-      // Extract product ID for API search
-      const productId = extractAmazonProductId(url);
-      
-      return {
-        title,
-        price: parsePrice(doc?.querySelector(".a-price-whole")?.textContent),
-        image,
-        id: productId,
-        platform: "amazon",
-        url
-      };
+      productId = extractAmazonProductId(url);
+      title = "Amazon Product " + productId;
     } else if (platform === "flipkart") {
-      const title = doc?.querySelector(".B_NuCI")?.textContent?.trim();
-      const image = doc?.querySelector("._396cs4")?.getAttribute("src");
-      // Extract product ID for API search
-      const productId = extractFlipkartProductId(url);
-      
-      return {
-        title,
-        price: parsePrice(doc?.querySelector("._30jeq3._16Jk6d")?.textContent),
-        image,
-        id: productId,
-        platform: "flipkart",
-        url
-      };
+      productId = extractFlipkartProductId(url);
+      title = "Flipkart Product " + productId;
     } else if (platform === "croma") {
-      const title = doc?.querySelector(".pd-title")?.textContent?.trim();
-      const image = doc?.querySelector(".pd-img-container img")?.getAttribute("src");
-      // Extract product ID for API search
-      const productId = extractCromaProductId(url);
-      
-      return {
-        title,
-        price: parsePrice(doc?.querySelector(".amount")?.textContent),
-        image,
-        id: productId,
-        platform: "croma",
-        url
-      };
+      productId = extractCromaProductId(url);
+      title = "Croma Product " + productId;
     }
     
-    return null;
+    return {
+      title,
+      price,
+      image,
+      id: productId,
+      platform,
+      url
+    };
   } catch (error) {
     console.error(`Error extracting product details: ${error.message}`);
     return null;
@@ -180,15 +142,6 @@ function extractFlipkartProductId(url: string): string {
 function extractCromaProductId(url: string): string {
   const match = url.match(/\/p\/([a-zA-Z0-9]+)/);
   return match ? match[1] : "";
-}
-
-// Parse price from string to number
-function parsePrice(priceStr: string | undefined | null): number | null {
-  if (!priceStr) return null;
-  
-  // Remove currency symbols, commas, and non-numeric characters
-  const cleanPrice = priceStr.replace(/[^0-9.]/g, "");
-  return parseFloat(cleanPrice) || null;
 }
 
 // Search for the product on other platforms using the Amazon Price API
