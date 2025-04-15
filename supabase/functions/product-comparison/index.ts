@@ -1,7 +1,6 @@
 
 // Follow Deno runtime for Supabase Edge Functions
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.36/deno-dom-wasm.ts";
 
 const corsHeaders = {
@@ -18,9 +17,9 @@ function handleCors(req: Request) {
   return null;
 }
 
-// Price comparison API endpoint - using a free price comparison API
-const PRICE_API_ENDPOINT = "https://api.priceapi.com/v2/jobs";
-const PRICE_API_KEY = Deno.env.get("PRICE_API_KEY") || "demo"; // Using demo key for testing
+// RapidAPI Amazon Price API endpoint
+const AMAZON_API_ENDPOINT = "https://amazon-price1.p.rapidapi.com/search";
+const AMAZON_API_KEY = Deno.env.get("RAPID_API_KEY") || "60b41dc98dmsh4323112fb253f31p11d159jsn54c8ab9429d2";
 
 serve(async (req) => {
   try {
@@ -192,9 +191,8 @@ function parsePrice(priceStr: string | undefined | null): number | null {
   return parseFloat(cleanPrice) || null;
 }
 
-// Search for the product on other platforms using the external API
+// Search for the product on other platforms using the Amazon Price API
 async function searchProductOnPlatforms(productDetails: any, originalPlatform: string): Promise<any[]> {
-  const platforms = ["amazon", "flipkart", "croma"];
   const results = [productDetails]; // Include the original product
   
   // Use the product title for searching
@@ -204,45 +202,68 @@ async function searchProductOnPlatforms(productDetails: any, originalPlatform: s
     .join(" "); // Use first 5 words for more accurate results
   
   try {
-    console.log("Searching for product using API:", searchTerm);
+    console.log("Searching for product using RapidAPI:", searchTerm);
     
-    // Try to make an API call to PriceAPI for price comparison
-    // Note: This is using the demo key which may not return real results
-    const apiResponse = await fetch(`${PRICE_API_ENDPOINT}/search?api_key=${PRICE_API_KEY}&search_term=${encodeURIComponent(searchTerm)}&source=amazon,flipkart`, {
+    // Call the Amazon Price API from RapidAPI
+    const searchUrl = `${AMAZON_API_ENDPOINT}?keywords=${encodeURIComponent(searchTerm)}`;
+    console.log("API URL:", searchUrl);
+    
+    const apiResponse = await fetch(searchUrl, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
+        "X-RapidAPI-Key": AMAZON_API_KEY,
+        "X-RapidAPI-Host": "amazon-price1.p.rapidapi.com",
       },
     });
     
     if (!apiResponse.ok) {
-      console.log("API response not OK, using mock data");
+      console.log("API response not OK, using mock data. Status:", apiResponse.status);
       return useMockData(productDetails, originalPlatform);
     }
     
     const apiData = await apiResponse.json();
     console.log("API search results:", apiData);
     
-    if (apiData.status === "success" && apiData.products && apiData.products.length > 0) {
-      for (const product of apiData.products) {
-        // Skip if this is the same platform and likely the same product
-        if (product.source === originalPlatform) continue;
-        
+    if (apiData && Array.isArray(apiData) && apiData.length > 0) {
+      // Add Amazon results to our list
+      for (const product of apiData.slice(0, 3)) { // Limit to top 3 results for demo
         results.push({
-          title: product.title,
-          price: product.price,
-          image: product.image_url,
-          platform: product.source,
-          url: product.url
+          title: product.title || "Amazon Product",
+          price: product.price ? parseFloat(product.price.replace(/[^0-9.]/g, "")) : null,
+          image: product.imageUrl || "https://example.com/amazon-image.jpg",
+          platform: "amazon",
+          url: product.detailPageURL || "https://www.amazon.com"
         });
       }
+      
+      // Add some mock results for other platforms for comparison
+      if (originalPlatform !== "flipkart") {
+        results.push({
+          title: productDetails.title,
+          price: productDetails.price ? productDetails.price * 1.05 : 16500, // Slightly higher price
+          image: "https://example.com/flipkart-image.jpg",
+          platform: "flipkart",
+          url: "https://www.flipkart.com/product-example"
+        });
+      }
+      
+      if (originalPlatform !== "croma") {
+        results.push({
+          title: productDetails.title,
+          price: productDetails.price ? productDetails.price * 0.90 : 14200, // Lower price
+          image: "https://example.com/croma-image.jpg",
+          platform: "croma",
+          url: "https://www.croma.com/product-example"
+        });
+      }
+      
       return results;
     } else {
       console.log("No results from API, using mock data");
       return useMockData(productDetails, originalPlatform);
     }
   } catch (error) {
-    console.error("Error with price API:", error);
+    console.error("Error with Amazon Price API:", error);
     return useMockData(productDetails, originalPlatform);
   }
 }
