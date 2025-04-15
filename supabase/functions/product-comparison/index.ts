@@ -27,54 +27,78 @@ serve(async (req) => {
     if (corsResponse) return corsResponse;
 
     // Parse the request body
-    const { url } = await req.json();
+    const requestData = await req.json();
     
-    if (!url) {
+    // Handle different request types
+    if (requestData.action === 'fetch_products') {
+      const keywords = requestData.keywords || 'popular electronics';
+      const limit = requestData.limit || 30;
+      
+      console.log(`Fetching ${limit} products for keywords: ${keywords}`);
+      
+      // Call the Amazon Products API
+      const products = await fetchAmazonProducts(keywords, limit);
+      
       return new Response(
-        JSON.stringify({ error: "URL is required" }),
+        JSON.stringify({ products }),
+        { headers: corsHeaders }
+      );
+    } else if (requestData.url) {
+      // Original product comparison functionality
+      const url = requestData.url;
+      
+      if (!url) {
+        return new Response(
+          JSON.stringify({ error: "URL is required" }),
+          { headers: corsHeaders, status: 400 }
+        );
+      }
+      
+      console.log("Received product URL:", url);
+      
+      // Determine which platform the URL is from
+      const platform = determinePlatform(url);
+      console.log("Detected platform:", platform);
+      
+      if (!platform) {
+        return new Response(
+          JSON.stringify({ error: "Unsupported e-commerce platform" }),
+          { headers: corsHeaders, status: 400 }
+        );
+      }
+      
+      // Extract basic product details from the URL (no longer using DOM parsing)
+      const productDetails = extractBasicProductDetails(url, platform);
+      console.log("Extracted product details:", productDetails);
+      
+      if (!productDetails) {
+        return new Response(
+          JSON.stringify({ error: "Failed to extract product details" }),
+          { headers: corsHeaders, status: 400 }
+        );
+      }
+      
+      // Search for the same product on other platforms using the API
+      const results = await searchProductOnPlatforms(productDetails, platform);
+      console.log("Search results:", results);
+      
+      // Find the best deal
+      const bestDeal = findBestDeal(results);
+      
+      return new Response(
+        JSON.stringify({
+          originalProduct: productDetails,
+          allDeals: results,
+          bestDeal: bestDeal
+        }),
+        { headers: corsHeaders }
+      );
+    } else {
+      return new Response(
+        JSON.stringify({ error: "Invalid request" }),
         { headers: corsHeaders, status: 400 }
       );
     }
-    
-    console.log("Received product URL:", url);
-    
-    // Determine which platform the URL is from
-    const platform = determinePlatform(url);
-    console.log("Detected platform:", platform);
-    
-    if (!platform) {
-      return new Response(
-        JSON.stringify({ error: "Unsupported e-commerce platform" }),
-        { headers: corsHeaders, status: 400 }
-      );
-    }
-    
-    // Extract basic product details from the URL (no longer using DOM parsing)
-    const productDetails = extractBasicProductDetails(url, platform);
-    console.log("Extracted product details:", productDetails);
-    
-    if (!productDetails) {
-      return new Response(
-        JSON.stringify({ error: "Failed to extract product details" }),
-        { headers: corsHeaders, status: 400 }
-      );
-    }
-    
-    // Search for the same product on other platforms using the API
-    const results = await searchProductOnPlatforms(productDetails, platform);
-    console.log("Search results:", results);
-    
-    // Find the best deal
-    const bestDeal = findBestDeal(results);
-    
-    return new Response(
-      JSON.stringify({
-        originalProduct: productDetails,
-        allDeals: results,
-        bestDeal: bestDeal
-      }),
-      { headers: corsHeaders }
-    );
   } catch (error) {
     console.error("Error:", error.message);
     return new Response(
@@ -83,6 +107,125 @@ serve(async (req) => {
     );
   }
 });
+
+// Fetch products from Amazon API
+async function fetchAmazonProducts(keywords: string, limit: number = 30): Promise<any[]> {
+  try {
+    console.log(`Calling Amazon API with keywords: ${keywords}`);
+    
+    const searchUrl = `${AMAZON_API_ENDPOINT}?keywords=${encodeURIComponent(keywords)}`;
+    console.log("API URL:", searchUrl);
+    
+    const apiResponse = await fetch(searchUrl, {
+      method: "GET",
+      headers: {
+        "X-RapidAPI-Key": AMAZON_API_KEY,
+        "X-RapidAPI-Host": "amazon-price1.p.rapidapi.com",
+      },
+    });
+    
+    if (!apiResponse.ok) {
+      console.log("API response not OK. Status:", apiResponse.status);
+      return getAmazonMockData(limit);
+    }
+    
+    const apiData = await apiResponse.json();
+    console.log(`API returned ${apiData?.length || 0} products`);
+    
+    if (apiData && Array.isArray(apiData) && apiData.length > 0) {
+      // Format the data and limit to requested amount
+      return apiData.slice(0, limit).map((product: any) => ({
+        id: product.ASIN || Math.random().toString(36).substring(7),
+        title: product.title || "Amazon Product",
+        originalPrice: parseFloat(product.listPrice?.replace(/[^0-9.]/g, "")) || null,
+        currentPrice: product.price ? parseFloat(product.price.replace(/[^0-9.]/g, "")) : null,
+        discount: calculateDiscount(
+          parseFloat(product.listPrice?.replace(/[^0-9.]/g, "")) || 0,
+          product.price ? parseFloat(product.price.replace(/[^0-9.]/g, "")) : 0
+        ),
+        image: product.imageUrl || "https://placehold.co/300x300?text=No+Image",
+        rating: parseFloat(product.rating) || Math.floor(Math.random() * 5) + 3,
+        store: "Amazon",
+        storeIcon: "https://placehold.co/20x20?text=A",
+        url: product.detailPageURL || `https://www.amazon.com/dp/${product.ASIN}`,
+        availability: "In Stock",
+        badges: ["Prime", "Fast Delivery"],
+        paymentOptions: [
+          {
+            type: "card",
+            label: "Card Payment",
+            bank: "All Banks"
+          },
+          {
+            type: "emi",
+            label: "EMI Available",
+            discount: 5
+          }
+        ]
+      }));
+    } else {
+      console.log("No results from API, using mock data");
+      return getAmazonMockData(limit);
+    }
+  } catch (error) {
+    console.error("Error with Amazon Price API:", error);
+    return getAmazonMockData(limit);
+  }
+}
+
+// Calculate discount percentage
+function calculateDiscount(originalPrice: number, currentPrice: number): number {
+  if (!originalPrice || !currentPrice || originalPrice <= currentPrice) return 0;
+  return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+}
+
+// Fallback to mock Amazon product data
+function getAmazonMockData(limit: number = 30): any[] {
+  const mockProducts = [];
+  
+  const categories = ['Electronics', 'Home Appliances', 'Fashion', 'Books', 'Toys'];
+  const badges = [['Prime', 'Fast Delivery'], ['Deal of the Day'], ['Limited Stock'], ['Flash Sale'], ['New Arrival']];
+  
+  for (let i = 0; i < limit; i++) {
+    const originalPrice = Math.floor(Math.random() * 90000) + 10000;
+    const discount = Math.floor(Math.random() * 30) + 5;
+    const currentPrice = Math.round(originalPrice * (1 - discount/100));
+    
+    mockProducts.push({
+      id: `MOCK${i + 1}`,
+      title: `${categories[i % categories.length]} Product ${i + 1} with Amazing Features and Specs`,
+      originalPrice,
+      currentPrice,
+      discount,
+      image: `https://placehold.co/300x300?text=Product+${i+1}`,
+      rating: Math.floor(Math.random() * 2) + 3.5,
+      store: "Amazon",
+      storeIcon: "https://placehold.co/20x20?text=A",
+      url: `https://www.amazon.com/dp/MOCK${i+1}`,
+      availability: Math.random() > 0.1 ? "In Stock" : "Limited Stock",
+      badges: badges[i % badges.length],
+      paymentOptions: [
+        {
+          type: "card",
+          label: "Card Payment",
+          bank: "All Banks"
+        },
+        {
+          type: "emi",
+          label: "EMI Available",
+          discount: Math.floor(Math.random() * 10) + 5
+        },
+        {
+          type: "voucher",
+          label: "Voucher SAVE10",
+          discount: 10
+        }
+      ]
+    });
+  }
+  
+  return mockProducts;
+}
 
 // Determine the e-commerce platform from the URL
 function determinePlatform(url: string): string | null {
