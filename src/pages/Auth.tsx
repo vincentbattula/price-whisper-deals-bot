@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -25,9 +24,14 @@ const signupSchema = loginSchema.extend({
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  if (user) {
+    navigate("/");
+    return null;
+  }
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -51,7 +55,6 @@ const Auth = () => {
     setIsLoading(true);
     try {
       await signIn(values.email, values.password);
-      navigate("/");
     } catch (error) {
       console.error("Login error:", error);
     } finally {
@@ -63,7 +66,6 @@ const Auth = () => {
     setIsLoading(true);
     try {
       await signUp(values.email, values.password, values.fullName);
-      navigate("/");
     } catch (error) {
       console.error("Signup error:", error);
     } finally {
