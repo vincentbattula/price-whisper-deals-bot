@@ -1,5 +1,20 @@
 
 project_id = "vohmneverymagclcqclw"
 
+[api]
+# No special configuration for the API
+
+[db]
+# No special configuration for the database
+
+[realtime]
+# No special configuration for realtime subscriptions
+
+[storage]
+# No special configuration for storage
+
+[auth]
+# No special configuration for auth
+
 [functions.product-comparison]
-verify_jwt = false
+verify_jwt = true

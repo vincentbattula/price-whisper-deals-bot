@@ -31,6 +31,7 @@ const ProductSearchForm = () => {
     }
     
     setLoading(true);
+    setResults(null);
     
     try {
       const { data, error } = await supabase.functions.invoke("product-comparison", {
@@ -41,6 +42,11 @@ const ProductSearchForm = () => {
         throw new Error(error.message);
       }
       
+      if (!data || !data.bestDeal) {
+        throw new Error("No price comparison data returned");
+      }
+      
+      console.log("Comparison results:", data);
       setResults(data);
       toast.success("Found price comparisons!");
     } catch (error) {
@@ -81,6 +87,15 @@ const ProductSearchForm = () => {
           </Button>
         </div>
       </form>
+      
+      {loading && (
+        <div className="flex justify-center my-12">
+          <div className="flex flex-col items-center">
+            <Loader2 className="h-12 w-12 animate-spin text-brand-teal mb-4" />
+            <p className="text-gray-600">Searching for the best prices...</p>
+          </div>
+        </div>
+      )}
       
       {results && (
         <div className="mt-8 space-y-6">
@@ -124,15 +139,25 @@ const ProductSearchForm = () => {
             {results.allDeals.map((deal: any, index: number) => (
               <Card key={index} className="border-gray-200">
                 <CardContent className="pt-4">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                     <div className="flex items-center gap-2">
                       <div className="font-medium">{deal.platform.toUpperCase()}</div>
                       {deal.platform === results.bestDeal.platform && (
                         <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">Best Price</span>
                       )}
                     </div>
-                    <div className="text-lg font-bold">
-                      {formatCurrency(deal.price)}
+                    <div className="flex gap-2 items-center">
+                      <div className="text-lg font-bold">
+                        {formatCurrency(deal.price)}
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-xs"
+                        onClick={() => window.open(deal.url, '_blank')}
+                      >
+                        View
+                      </Button>
                     </div>
                   </div>
                 </CardContent>

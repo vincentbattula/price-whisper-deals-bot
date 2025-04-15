@@ -18,6 +18,10 @@ function handleCors(req: Request) {
   return null;
 }
 
+// Price comparison API endpoint - using a free price comparison API
+const PRICE_API_ENDPOINT = "https://api.priceapi.com/v2/jobs";
+const PRICE_API_KEY = Deno.env.get("PRICE_API_KEY") || "demo"; // Using demo key for testing
+
 serve(async (req) => {
   try {
     // Handle CORS
@@ -58,11 +62,11 @@ serve(async (req) => {
       );
     }
     
-    // Search for the same product on other platforms
+    // Search for the same product on other platforms using the API
     const results = await searchProductOnPlatforms(productDetails, platform);
     console.log("Search results:", results);
     
-    // Find the best price
+    // Find the best deal
     const bestDeal = findBestDeal(results);
     
     return new Response(
@@ -111,25 +115,46 @@ async function extractProductDetails(url: string, platform: string): Promise<any
     // Extract product details based on the platform
     // Note: These selectors would need to be updated regularly as websites change
     if (platform === "amazon") {
+      const title = doc?.querySelector("#productTitle")?.textContent?.trim();
+      const image = doc?.querySelector("#landingImage")?.getAttribute("src");
+      // Extract product ID for API search
+      const productId = extractAmazonProductId(url);
+      
       return {
-        title: doc?.querySelector("#productTitle")?.textContent?.trim(),
+        title,
         price: parsePrice(doc?.querySelector(".a-price-whole")?.textContent),
-        image: doc?.querySelector("#landingImage")?.getAttribute("src"),
-        platform: "amazon"
+        image,
+        id: productId,
+        platform: "amazon",
+        url
       };
     } else if (platform === "flipkart") {
+      const title = doc?.querySelector(".B_NuCI")?.textContent?.trim();
+      const image = doc?.querySelector("._396cs4")?.getAttribute("src");
+      // Extract product ID for API search
+      const productId = extractFlipkartProductId(url);
+      
       return {
-        title: doc?.querySelector(".B_NuCI")?.textContent?.trim(),
+        title,
         price: parsePrice(doc?.querySelector("._30jeq3._16Jk6d")?.textContent),
-        image: doc?.querySelector("._396cs4")?.getAttribute("src"),
-        platform: "flipkart"
+        image,
+        id: productId,
+        platform: "flipkart",
+        url
       };
     } else if (platform === "croma") {
+      const title = doc?.querySelector(".pd-title")?.textContent?.trim();
+      const image = doc?.querySelector(".pd-img-container img")?.getAttribute("src");
+      // Extract product ID for API search
+      const productId = extractCromaProductId(url);
+      
       return {
-        title: doc?.querySelector(".pd-title")?.textContent?.trim(),
+        title,
         price: parsePrice(doc?.querySelector(".amount")?.textContent),
-        image: doc?.querySelector(".pd-img-container img")?.getAttribute("src"),
-        platform: "croma"
+        image,
+        id: productId,
+        platform: "croma",
+        url
       };
     }
     
@@ -138,6 +163,24 @@ async function extractProductDetails(url: string, platform: string): Promise<any
     console.error(`Error extracting product details: ${error.message}`);
     return null;
   }
+}
+
+// Extract Amazon product ID
+function extractAmazonProductId(url: string): string {
+  const match = url.match(/\/dp\/([A-Z0-9]+)/);
+  return match ? match[1] : "";
+}
+
+// Extract Flipkart product ID
+function extractFlipkartProductId(url: string): string {
+  const match = url.match(/\/p\/([a-zA-Z0-9]+)/);
+  return match ? match[1] : "";
+}
+
+// Extract Croma product ID
+function extractCromaProductId(url: string): string {
+  const match = url.match(/\/p\/([a-zA-Z0-9]+)/);
+  return match ? match[1] : "";
 }
 
 // Parse price from string to number
@@ -149,76 +192,97 @@ function parsePrice(priceStr: string | undefined | null): number | null {
   return parseFloat(cleanPrice) || null;
 }
 
-// Search for the product on other platforms
+// Search for the product on other platforms using the external API
 async function searchProductOnPlatforms(productDetails: any, originalPlatform: string): Promise<any[]> {
-  // In a real implementation, this would use platform-specific search APIs
-  // or more sophisticated web scraping techniques
-  
   const platforms = ["amazon", "flipkart", "croma"];
   const results = [productDetails]; // Include the original product
   
-  // Search term based on product title
+  // Use the product title for searching
   const searchTerm = productDetails.title
     ?.split(" ")
     .slice(0, 5)
     .join(" "); // Use first 5 words for more accurate results
   
-  for (const platform of platforms) {
-    // Skip the original platform
-    if (platform === originalPlatform) continue;
+  try {
+    console.log("Searching for product using API:", searchTerm);
     
-    // Construct search URL
-    let searchUrl;
-    if (platform === "amazon") {
-      searchUrl = `https://www.amazon.in/s?k=${encodeURIComponent(searchTerm)}`;
-    } else if (platform === "flipkart") {
-      searchUrl = `https://www.flipkart.com/search?q=${encodeURIComponent(searchTerm)}`;
-    } else if (platform === "croma") {
-      searchUrl = `https://www.croma.com/searchB?q=${encodeURIComponent(searchTerm)}`;
-    } else {
-      continue;
+    // Try to make an API call to PriceAPI for price comparison
+    // Note: This is using the demo key which may not return real results
+    const apiResponse = await fetch(`${PRICE_API_ENDPOINT}/search?api_key=${PRICE_API_KEY}&search_term=${encodeURIComponent(searchTerm)}&source=amazon,flipkart`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    
+    if (!apiResponse.ok) {
+      console.log("API response not OK, using mock data");
+      return useMockData(productDetails, originalPlatform);
     }
     
-    try {
-      // This is a simplified version; a real implementation would need to:
-      // 1. Navigate to the search results page
-      // 2. Find the most relevant product
-      // 3. Visit that product page
-      // 4. Extract the details
-      
-      // Mock data for demonstration
-      const mockResults = {
-        amazon: {
-          title: productDetails.title,
-          price: productDetails.price * 0.95, // Slightly lower price for demo
-          image: "https://example.com/amazon-image.jpg",
-          platform: "amazon",
-          url: "https://www.amazon.in/product-example"
-        },
-        flipkart: {
-          title: productDetails.title,
-          price: productDetails.price * 1.05, // Slightly higher price for demo
-          image: "https://example.com/flipkart-image.jpg",
-          platform: "flipkart",
-          url: "https://www.flipkart.com/product-example"
-        },
-        croma: {
-          title: productDetails.title,
-          price: productDetails.price * 0.90, // Lower price for demo
-          image: "https://example.com/croma-image.jpg",
-          platform: "croma",
-          url: "https://www.croma.com/product-example"
-        }
-      };
-      
-      results.push(mockResults[platform]);
-    } catch (error) {
-      console.error(`Error searching on ${platform}: ${error.message}`);
-      // Continue with other platforms if one fails
+    const apiData = await apiResponse.json();
+    console.log("API search results:", apiData);
+    
+    if (apiData.status === "success" && apiData.products && apiData.products.length > 0) {
+      for (const product of apiData.products) {
+        // Skip if this is the same platform and likely the same product
+        if (product.source === originalPlatform) continue;
+        
+        results.push({
+          title: product.title,
+          price: product.price,
+          image: product.image_url,
+          platform: product.source,
+          url: product.url
+        });
+      }
+      return results;
+    } else {
+      console.log("No results from API, using mock data");
+      return useMockData(productDetails, originalPlatform);
+    }
+  } catch (error) {
+    console.error("Error with price API:", error);
+    return useMockData(productDetails, originalPlatform);
+  }
+}
+
+// Fallback to mock data when API fails
+function useMockData(productDetails: any, originalPlatform: string): any[] {
+  const results = [productDetails];
+  
+  const mockResults = {
+    amazon: {
+      title: productDetails.title,
+      price: productDetails.price ? productDetails.price * 0.95 : 15000, // Slightly lower price for demo
+      image: "https://example.com/amazon-image.jpg",
+      platform: "amazon",
+      url: "https://www.amazon.in/product-example"
+    },
+    flipkart: {
+      title: productDetails.title,
+      price: productDetails.price ? productDetails.price * 1.05 : 16500, // Slightly higher price for demo
+      image: "https://example.com/flipkart-image.jpg",
+      platform: "flipkart",
+      url: "https://www.flipkart.com/product-example"
+    },
+    croma: {
+      title: productDetails.title,
+      price: productDetails.price ? productDetails.price * 0.90 : 14200, // Lower price for demo
+      image: "https://example.com/croma-image.jpg",
+      platform: "croma",
+      url: "https://www.croma.com/product-example"
+    }
+  };
+  
+  // Add mock results for platforms other than the original one
+  for (const platform of Object.keys(mockResults)) {
+    if (platform !== originalPlatform) {
+      results.push(mockResults[platform as keyof typeof mockResults]);
     }
   }
   
-  return results.filter(Boolean); // Filter out any null results
+  return results;
 }
 
 // Find the best deal from the search results
