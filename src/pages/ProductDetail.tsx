@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft, CheckCircle, ShoppingCart, CreditCard, Clock, Tag } from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle, ShoppingCart, CreditCard, Clock, Tag, BadgePercent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,12 +29,12 @@ const ProductDetail = () => {
   const fetchProductDetails = async () => {
     setLoading(true);
     try {
-      // For iPhone 15 Pro, we'll use hardcoded data as specified
-      if (id === "iphone15pro") {
+      // For predefined products, we'll use hardcoded data
+      if (id === "iphone15promax") {
         const iphoneData = {
-          id: "iphone15pro",
-          title: "Apple iPhone 15 Pro, 256GB, Natural Titanium, Unlocked",
-          image: "https://placehold.co/400x400/f8f8f8/878787?text=iPhone+15+Pro",
+          id: "iphone15promax",
+          title: "Apple iPhone 15 Pro Max, 256GB, Natural Titanium, Unlocked",
+          image: "https://placehold.co/400x400/f8f8f8/878787?text=iPhone+15+Pro+Max",
           originalPrice: 79999,
           currentPrice: 75999,
           discount: 5,
@@ -43,13 +43,13 @@ const ProductDetail = () => {
           storeIcon: "https://placehold.co/20x20/f8f8f8/878787?text=A",
           availability: "In Stock",
           badges: ["Free Shipping", "2 Year Apple Care"],
-          description: "The iPhone 15 Pro features a titanium design, the powerful A17 Pro chip, a 48MP main camera with 3x optical zoom, and a stunning 6.1-inch Super Retina XDR display.",
+          description: "The iPhone 15 Pro Max features a titanium design, the powerful A17 Pro chip, a 48MP main camera with 5x optical zoom, and a stunning 6.7-inch Super Retina XDR display.",
           specifications: [
-            { name: "Display", value: "6.1-inch Super Retina XDR" },
+            { name: "Display", value: "6.7-inch Super Retina XDR" },
             { name: "Processor", value: "A17 Pro chip" },
             { name: "Storage", value: "256GB" },
-            { name: "Camera", value: "48MP main, 12MP ultra wide, 12MP telephoto" },
-            { name: "Battery", value: "Up to 23 hours video playback" },
+            { name: "Camera", value: "48MP main, 12MP ultra wide, 12MP telephoto with 5x optical zoom" },
+            { name: "Battery", value: "Up to 29 hours video playback" },
             { name: "OS", value: "iOS 17" },
             { name: "Water Resistance", value: "IP68" },
             { name: "Color", value: "Natural Titanium" }
@@ -61,6 +61,7 @@ const ProductDetail = () => {
               icon: "https://placehold.co/20x20/f8f8f8/878787?text=A",
               inStock: true,
               deliveryTime: "1-2 days",
+              isCheapest: true,
               paymentOptions: [
                 { type: "card", label: "ICICI Platinum Credit Card", discount: 0, bank: "ICICI" },
                 { type: "emi", label: "6 Month No Cost EMI (ICICI)", discount: 4000, finalPrice: 71999, bank: "ICICI" },
@@ -73,6 +74,7 @@ const ProductDetail = () => {
               icon: "https://placehold.co/20x20/f8f8f8/878787?text=F",
               inStock: true,
               deliveryTime: "2-3 days",
+              isCheapest: false,
               paymentOptions: [
                 { type: "card", label: "Axis Bank Card", discount: 1500, finalPrice: 75099, bank: "Axis" },
                 { type: "emi", label: "3 Month No Cost EMI", discount: 0, finalPrice: 76599 },
@@ -85,6 +87,7 @@ const ProductDetail = () => {
               icon: "https://placehold.co/20x20/f8f8f8/878787?text=C",
               inStock: true,
               deliveryTime: "3-4 days",
+              isCheapest: false,
               paymentOptions: [
                 { type: "card", label: "SBI Card", discount: 2000, finalPrice: 75999, bank: "SBI" },
                 { type: "emi", label: "9 Month Low Cost EMI", discount: 0, finalPrice: 77999 },
@@ -95,6 +98,142 @@ const ProductDetail = () => {
         };
         setProduct(iphoneData);
         setSelectedPaymentOption(iphoneData.retailers[0].paymentOptions[1]); // Default to the ICICI EMI option
+      } else if (id === "samsungs24ultra") {
+        const samsungData = {
+          id: "samsungs24ultra",
+          title: "Samsung Galaxy S24 Ultra, 512GB, Titanium Black, 5G",
+          image: "https://placehold.co/400x400/f8f8f8/878787?text=Galaxy+S24+Ultra",
+          originalPrice: 134999,
+          currentPrice: 92250,
+          discount: 31.7,
+          rating: 4.8,
+          store: "Amazon",
+          storeIcon: "https://placehold.co/20x20/f8f8f8/878787?text=A",
+          availability: "In Stock",
+          badges: ["Free Shipping", "Samsung Care+"],
+          description: "The Samsung Galaxy S24 Ultra features a stunning 6.8-inch Dynamic AMOLED display, Snapdragon 8 Gen 3 processor, 200MP main camera, and a built-in S Pen for enhanced productivity.",
+          specifications: [
+            { name: "Display", value: "6.8-inch Dynamic AMOLED 2X, 120Hz" },
+            { name: "Processor", value: "Snapdragon 8 Gen 3" },
+            { name: "Storage", value: "512GB" },
+            { name: "Camera", value: "200MP main, 12MP ultra wide, 50MP telephoto with 5x optical zoom" },
+            { name: "Battery", value: "5,000mAh" },
+            { name: "OS", value: "Android 14 with One UI 6.1" },
+            { name: "Water Resistance", value: "IP68" },
+            { name: "Color", value: "Titanium Black" }
+          ],
+          retailers: [
+            { 
+              name: "Amazon", 
+              price: 92250,
+              icon: "https://placehold.co/20x20/f8f8f8/878787?text=A",
+              inStock: true,
+              deliveryTime: "1-2 days",
+              isCheapest: true,
+              paymentOptions: [
+                { type: "card", label: "Standard Price", discount: 0, finalPrice: 92250 },
+                { type: "card", label: "HDFC Credit Card", discount: 30250, finalPrice: 62000, bank: "HDFC" },
+                { type: "emi", label: "No Cost EMI (12 months)", discount: 0, finalPrice: 92250 }
+              ]
+            },
+            { 
+              name: "Flipkart", 
+              price: 94990,
+              icon: "https://placehold.co/20x20/f8f8f8/878787?text=F",
+              inStock: false,
+              deliveryTime: "Out of Stock",
+              isCheapest: false,
+              paymentOptions: [
+                { type: "card", label: "Standard Price", discount: 0, finalPrice: 94990 },
+                { type: "card", label: "Axis Bank Card", discount: 5000, finalPrice: 89990, bank: "Axis" },
+                { type: "emi", label: "3 Month No Cost EMI", discount: 0, finalPrice: 94990 }
+              ]
+            },
+            { 
+              name: "Samsung", 
+              price: 96990,
+              icon: "https://placehold.co/20x20/f8f8f8/878787?text=S",
+              inStock: true,
+              deliveryTime: "3-5 days",
+              isCheapest: false,
+              paymentOptions: [
+                { type: "card", label: "Standard Price", discount: 0, finalPrice: 96990 },
+                { type: "card", label: "Student Discount", discount: 8, finalPrice: 89231 },
+                { type: "emi", label: "24 Month Low Cost EMI", discount: 0, finalPrice: 96990 }
+              ]
+            }
+          ]
+        };
+        setProduct(samsungData);
+        setSelectedPaymentOption(samsungData.retailers[0].paymentOptions[1]); // Default to the credit card option
+      } else if (id === "ps5") {
+        const ps5Data = {
+          id: "ps5",
+          title: "Sony PlayStation 5 Digital Edition Console with DualSense Controller",
+          image: "https://placehold.co/400x400/f8f8f8/878787?text=PS5",
+          originalPrice: 47990,
+          currentPrice: 44990,
+          discount: 6.3,
+          rating: 4.9,
+          store: "Amazon",
+          storeIcon: "https://placehold.co/20x20/f8f8f8/878787?text=A",
+          availability: "In Stock",
+          badges: ["Limited Offer", "Includes Game Pass"],
+          description: "Experience lightning-fast loading with an ultra-high speed SSD, deeper immersion with support for haptic feedback, adaptive triggers, and 3D Audio, and an all-new generation of incredible PlayStation games.",
+          specifications: [
+            { name: "CPU", value: "AMD Zen 2-based CPU with 8 cores at 3.5GHz" },
+            { name: "GPU", value: "10.28 TFLOPs, 36 CUs at 2.23GHz (variable frequency)" },
+            { name: "RAM", value: "16GB GDDR6" },
+            { name: "Storage", value: "825GB SSD" },
+            { name: "Resolution", value: "Up to 4K" },
+            { name: "Frame Rate", value: "Up to 120fps" },
+            { name: "Optical Drive", value: "None (Digital Edition)" },
+            { name: "HDMI", value: "HDMI 2.1" }
+          ],
+          retailers: [
+            { 
+              name: "Amazon", 
+              price: 44990,
+              icon: "https://placehold.co/20x20/f8f8f8/878787?text=A",
+              inStock: true,
+              deliveryTime: "1-2 days",
+              isCheapest: true,
+              paymentOptions: [
+                { type: "card", label: "Standard Price", discount: 0, finalPrice: 44990 },
+                { type: "card", label: "SBI Credit Card", discount: 4000, finalPrice: 40990, bank: "SBI" },
+                { type: "emi", label: "No Cost EMI (6 months)", discount: 0, finalPrice: 44990 }
+              ]
+            },
+            { 
+              name: "Flipkart", 
+              price: 46490,
+              icon: "https://placehold.co/20x20/f8f8f8/878787?text=F",
+              inStock: true,
+              deliveryTime: "2-3 days",
+              isCheapest: false,
+              paymentOptions: [
+                { type: "card", label: "Standard Price", discount: 0, finalPrice: 46490 },
+                { type: "card", label: "ICICI Bank Card", discount: 1500, finalPrice: 44990, bank: "ICICI" },
+                { type: "voucher", label: "GAMING1000", discount: 1000, finalPrice: 45490 }
+              ]
+            },
+            { 
+              name: "Croma", 
+              price: 47990,
+              icon: "https://placehold.co/20x20/f8f8f8/878787?text=C",
+              inStock: true,
+              deliveryTime: "3-4 days",
+              isCheapest: false,
+              paymentOptions: [
+                { type: "card", label: "Standard Price", discount: 0, finalPrice: 47990 },
+                { type: "emi", label: "12 Month EMI", discount: 0, finalPrice: 47990 },
+                { type: "voucher", label: "WELCOME2000", discount: 2000, finalPrice: 45990 }
+              ]
+            }
+          ]
+        };
+        setProduct(ps5Data);
+        setSelectedPaymentOption(ps5Data.retailers[0].paymentOptions[1]); // Default to the credit card option
       } else {
         // For other products, fetch from the API
         const { data, error } = await supabase.functions.invoke("product-comparison", {
@@ -273,13 +412,20 @@ const ProductDetail = () => {
                     <TabsContent 
                       key={idx} 
                       value={retailer.name.toLowerCase()}
-                      className="space-y-4"
+                      className={`space-y-4 ${selectedRetailer === retailer.name.toLowerCase() ? 'border-2 border-brand-teal rounded-lg p-4' : ''}`}
                     >
                       <div className="flex justify-between">
                         <div>
-                          <p className="text-2xl font-bold text-brand-dark">
-                            ₹{retailer.price.toLocaleString()}
-                          </p>
+                          <div className="flex items-center">
+                            <p className="text-2xl font-bold text-brand-dark">
+                              ₹{retailer.price.toLocaleString()}
+                            </p>
+                            {retailer.isCheapest && (
+                              <Badge className="ml-2 bg-purple-600 hover:bg-purple-700">
+                                <BadgePercent className="h-3 w-3 mr-1" /> Cheapest
+                              </Badge>
+                            )}
+                          </div>
                           <p className="text-sm text-gray-500">
                             {retailer.inStock ? "In Stock" : "Out of Stock"} • 
                             Delivery in {retailer.deliveryTime}
@@ -319,7 +465,11 @@ const ProductDetail = () => {
                                       <span className="text-xl font-semibold">₹{finalPrice.toLocaleString()}</span>
                                       {option.discount > 0 && (
                                         <Badge variant="outline" className="bg-green-50 text-green-700">
-                                          Save ₹{(option.discount || 0).toLocaleString()}
+                                          Save ₹{(
+                                            typeof option.discount === 'number' && option.discount > 100 
+                                              ? option.discount 
+                                              : retailer.price * (option.discount || 0) / 100
+                                          ).toLocaleString()}
                                         </Badge>
                                       )}
                                     </div>
@@ -364,8 +514,10 @@ const ProductDetail = () => {
                       <Button 
                         className="w-full bg-brand-orange hover:bg-brand-orange/90"
                         onClick={() => handleBuyNow(retailer.name, selectedPaymentOption || retailer.paymentOptions[0])}
+                        disabled={!retailer.inStock}
                       >
-                        <ShoppingCart className="h-4 w-4 mr-2" /> Buy Now from {retailer.name}
+                        <ShoppingCart className="h-4 w-4 mr-2" /> 
+                        {retailer.inStock ? `Buy Now from ${retailer.name}` : "Out of Stock"}
                       </Button>
                     </TabsContent>
                   ))}

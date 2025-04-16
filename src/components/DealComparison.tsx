@@ -7,9 +7,9 @@ import ProductCard from "./ProductCard";
 // Sample product data
 const SAMPLE_PRODUCTS = [
   {
-    id: "iphone15pro",
-    title: "Apple iPhone 15 Pro, 256GB, Natural Titanium, Unlocked",
-    image: "https://placehold.co/400x400/f8f8f8/878787?text=iPhone+15+Pro",
+    id: "iphone15promax",
+    title: "Apple iPhone 15 Pro Max, 256GB, Natural Titanium, Unlocked",
+    image: "https://placehold.co/400x400/f8f8f8/878787?text=iPhone+15+Pro+Max",
     originalPrice: 79999,
     currentPrice: 75999,
     discount: 5,
@@ -25,39 +25,39 @@ const SAMPLE_PRODUCTS = [
     ]
   },
   {
-    id: "2",
+    id: "samsungs24ultra",
     title: "Samsung Galaxy S24 Ultra, 512GB, Titanium Black, 5G",
-    image: "https://placehold.co/400x400/f8f8f8/878787?text=Galaxy+S24",
-    originalPrice: 104999,
-    currentPrice: 96999,
-    discount: 7.6,
+    image: "https://placehold.co/400x400/f8f8f8/878787?text=Galaxy+S24+Ultra",
+    originalPrice: 134999,
+    currentPrice: 92250,
+    discount: 31.7,
     rating: 4.7,
-    store: "Samsung",
-    storeIcon: "https://placehold.co/20x20/f8f8f8/878787?text=S",
+    store: "Amazon",
+    storeIcon: "https://placehold.co/20x20/f8f8f8/878787?text=A",
     availability: "In Stock",
     badges: ["Free Shipping", "Samsung Care+"],
     paymentOptions: [
-      { type: "voucher" as const, label: "GALAXY100", discount: 8 },
-      { type: "card" as const, label: "ICICI Card", discount: 7, bank: "ICICI" },
-      { type: "emi" as const, label: "6 Month EMI", discount: 0 }
+      { type: "card" as const, label: "HDFC Card", discount: 30250, bank: "HDFC" },
+      { type: "card" as const, label: "Standard Price", discount: 0 },
+      { type: "emi" as const, label: "12 Month EMI", discount: 0 }
     ]
   },
   {
-    id: "3",
+    id: "ps5",
     title: "Sony PlayStation 5 Digital Edition Console with DualSense Controller",
     image: "https://placehold.co/400x400/f8f8f8/878787?text=PS5",
-    originalPrice: 32999,
-    currentPrice: 28999,
-    discount: 12.1,
+    originalPrice: 47990,
+    currentPrice: 44990,
+    discount: 6.3,
     rating: 4.9,
-    store: "Croma",
-    storeIcon: "https://placehold.co/20x20/f8f8f8/878787?text=BB",
+    store: "Amazon",
+    storeIcon: "https://placehold.co/20x20/f8f8f8/878787?text=A",
     availability: "Few Left",
     badges: ["Limited Offer", "Includes Game Pass"],
     paymentOptions: [
-      { type: "card" as const, label: "Citi Card", discount: 5, bank: "Citi" },
-      { type: "emi" as const, label: "12 Month EMI", discount: 0 },
-      { type: "voucher" as const, label: "GAMING20", discount: 5 }
+      { type: "card" as const, label: "SBI Card", discount: 4000, bank: "SBI" },
+      { type: "emi" as const, label: "6 Month EMI", discount: 0 },
+      { type: "voucher" as const, label: "GAMING500", discount: 500 }
     ]
   },
 ];
@@ -82,9 +82,9 @@ const TRENDING_PRODUCTS = [
     ]
   },
   {
-    id: "iphone15pro",
-    title: "Apple iPhone 15 Pro, 256GB, Natural Titanium, Unlocked",
-    image: "https://placehold.co/400x400/f8f8f8/878787?text=iPhone+15+Pro",
+    id: "iphone15promax",
+    title: "Apple iPhone 15 Pro Max, 256GB, Natural Titanium, Unlocked",
+    image: "https://placehold.co/400x400/f8f8f8/878787?text=iPhone+15+Pro+Max",
     originalPrice: 79999,
     currentPrice: 75999,
     discount: 5,
@@ -97,6 +97,24 @@ const TRENDING_PRODUCTS = [
       { type: "card" as const, label: "ICICI Card", discount: 0, bank: "ICICI" },
       { type: "emi" as const, label: "No Cost EMI", discount: 5 },
       { type: "voucher" as const, label: "APPLE15", discount: 3 }
+    ]
+  },
+  {
+    id: "samsungs24ultra",
+    title: "Samsung Galaxy S24 Ultra, 512GB, Titanium Black, 5G",
+    image: "https://placehold.co/400x400/f8f8f8/878787?text=Galaxy+S24+Ultra",
+    originalPrice: 134999,
+    currentPrice: 92250,
+    discount: 31.7,
+    rating: 4.7,
+    store: "Amazon",
+    storeIcon: "https://placehold.co/20x20/f8f8f8/878787?text=A",
+    availability: "In Stock",
+    badges: ["Free Shipping", "Samsung Care+"],
+    paymentOptions: [
+      { type: "card" as const, label: "HDFC Card", discount: 30250, bank: "HDFC" },
+      { type: "card" as const, label: "Standard Price", discount: 0 },
+      { type: "emi" as const, label: "12 Month EMI", discount: 0 }
     ]
   },
 ];

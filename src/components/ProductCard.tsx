@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -66,12 +65,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   const handleProductClick = () => {
-    // For the iPhone 15 Pro example, use a specific ID
-    if (product.title.toLowerCase().includes("iphone 15 pro")) {
-      navigate(`/product/iphone15pro`);
-    } else {
-      navigate(`/product/${product.id}`);
-    }
+    // Navigate to the product detail page using the product id
+    navigate(`/product/${product.id}`);
   };
 
   return (
