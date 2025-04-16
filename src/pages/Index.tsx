@@ -1,7 +1,6 @@
 
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import AmazonProducts from "@/components/AmazonProducts";
 import DealComparison from "@/components/DealComparison";
 import ChatBot from "@/components/ChatBot";
 import Footer from "@/components/Footer";
@@ -12,9 +11,6 @@ const Index = () => {
       <Navbar />
       <main className="flex-grow">
         <Hero />
-        
-        {/* Amazon Products Section */}
-        <AmazonProducts />
         
         {/* Features Section */}
         <section id="features" className="py-16 bg-white">
