@@ -85,10 +85,10 @@ const AmazonProducts = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-brand-dark">
-            Trending Products
+            Electronics Products
           </h2>
           <p className="mt-4 text-gray-600">
-            Discover the hottest deals on today's most popular products.
+            Discover the hottest deals on today's most popular electronics.
           </p>
         </div>
         
