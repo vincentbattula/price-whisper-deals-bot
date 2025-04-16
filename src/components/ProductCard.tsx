@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   ExternalLink, 
   ThumbsUp, 
@@ -42,6 +43,7 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const navigate = useNavigate();
   const [selectedOption, setSelectedOption] = useState(product.paymentOptions[0]);
   const [expanded, setExpanded] = useState(false);
   
@@ -63,12 +65,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }).format(amount);
   };
 
+  const handleProductClick = () => {
+    // For the iPhone 15 Pro example, use a specific ID
+    if (product.title.toLowerCase().includes("iphone 15 pro")) {
+      navigate(`/product/iphone15pro`);
+    } else {
+      navigate(`/product/${product.id}`);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow duration-300">
       <div className="p-4">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Product Image */}
-          <div className="flex-shrink-0 h-48 w-full sm:w-48 bg-gray-50 rounded-md overflow-hidden">
+          <div 
+            className="flex-shrink-0 h-48 w-full sm:w-48 bg-gray-50 rounded-md overflow-hidden cursor-pointer"
+            onClick={handleProductClick}
+          >
             <img 
               src={product.image} 
               alt={product.title} 
@@ -90,7 +104,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <div className="text-sm text-gray-500">{product.availability}</div>
             </div>
             
-            <h3 className="font-semibold text-lg line-clamp-2">{product.title}</h3>
+            <h3 
+              className="font-semibold text-lg line-clamp-2 cursor-pointer hover:text-brand-teal"
+              onClick={handleProductClick}
+            >
+              {product.title}
+            </h3>
             
             <div className="flex flex-wrap gap-1">
               {product.badges.map((badge, idx) => (
@@ -189,6 +208,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               variant="default" 
               size="sm"
               className="bg-brand-orange hover:bg-brand-orange/90"
+              onClick={handleProductClick}
             >
               <ShoppingCart className="h-4 w-4 mr-1" />
               Buy Now

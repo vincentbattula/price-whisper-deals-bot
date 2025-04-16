@@ -7,21 +7,21 @@ import ProductCard from "./ProductCard";
 // Sample product data
 const SAMPLE_PRODUCTS = [
   {
-    id: "1",
+    id: "iphone15pro",
     title: "Apple iPhone 15 Pro, 256GB, Natural Titanium, Unlocked",
     image: "https://placehold.co/400x400/f8f8f8/878787?text=iPhone+15+Pro",
-    originalPrice: 89999,
-    currentPrice: 79999,
-    discount: 11.1,
+    originalPrice: 79999,
+    currentPrice: 75999,
+    discount: 5,
     rating: 4.8,
     store: "Amazon",
     storeIcon: "https://placehold.co/20x20/f8f8f8/878787?text=A",
     availability: "In Stock",
-    badges: ["Free Shipping", "5% Cashback"],
+    badges: ["Free Shipping", "Apple Care+"],
     paymentOptions: [
-      { type: "card" as const, label: "HDFC Card", discount: 5, bank: "HDFC" },
-      { type: "emi" as const, label: "No Cost EMI", discount: 0 },
-      { type: "voucher" as const, label: "SAVE10", discount: 10 }
+      { type: "card" as const, label: "ICICI Card", discount: 0, bank: "ICICI" },
+      { type: "emi" as const, label: "No Cost EMI", discount: 5 },
+      { type: "voucher" as const, label: "APPLEDEAL", discount: 3 }
     ]
   },
   {
@@ -82,21 +82,21 @@ const TRENDING_PRODUCTS = [
     ]
   },
   {
-    id: "5",
-    title: "Sony WH-1000XM5 Wireless Noise Cancelling Headphones, Black",
-    image: "https://placehold.co/400x400/f8f8f8/878787?text=Sony+WH1000XM5",
-    originalPrice: 32999,
-    currentPrice: 28999,
-    discount: 12.1,
-    rating: 4.7,
-    store: "Croma",
-    storeIcon: "https://placehold.co/20x20/f8f8f8/878787?text=C",
+    id: "iphone15pro",
+    title: "Apple iPhone 15 Pro, 256GB, Natural Titanium, Unlocked",
+    image: "https://placehold.co/400x400/f8f8f8/878787?text=iPhone+15+Pro",
+    originalPrice: 79999,
+    currentPrice: 75999,
+    discount: 5,
+    rating: 4.8,
+    store: "Amazon",
+    storeIcon: "https://placehold.co/20x20/f8f8f8/878787?text=A",
     availability: "In Stock",
-    badges: ["Limited Stock", "2 Year Warranty"],
+    badges: ["Free Shipping", "5% Cashback"],
     paymentOptions: [
-      { type: "voucher" as const, label: "AUDIO50", discount: 10 },
-      { type: "card" as const, label: "SBI Card", discount: 5, bank: "SBI" },
-      { type: "emi" as const, label: "3 Month EMI", discount: 0 }
+      { type: "card" as const, label: "ICICI Card", discount: 0, bank: "ICICI" },
+      { type: "emi" as const, label: "No Cost EMI", discount: 5 },
+      { type: "voucher" as const, label: "APPLE15", discount: 3 }
     ]
   },
 ];
